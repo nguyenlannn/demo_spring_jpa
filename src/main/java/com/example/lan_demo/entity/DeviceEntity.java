@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 public class DeviceEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String userAgent;
     private String accessToken;

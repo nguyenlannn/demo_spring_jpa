@@ -14,11 +14,10 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 @RestController
 public class UserController {
-//    private final UserService mUserService;
-//
-//    @PostMapping("/create")
-//    public ResponseEntity<UserRes> createAccount(@RequestBody @Valid UserReq userReq) {
-//        return ResponseEntity.ok().body(mUserService.createAccount(userReq));
-//    }
+    private final UserService mUserService;
 
+    @PostMapping("/register")
+    public ResponseEntity<UserRes> createAccount(@RequestBody @Valid UserReq userReq) {
+        return ResponseEntity.ok().body(mUserService.createAccount(userReq));
+    }
 }

@@ -16,6 +16,7 @@ import java.util.Collection;
 @Entity(name = "user")
 public class UserEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String name;
     private String mail;
