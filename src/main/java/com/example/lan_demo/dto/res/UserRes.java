@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRes {
-    private String message;
+    private Integer id;
     private String email;
     private String name;
 }
