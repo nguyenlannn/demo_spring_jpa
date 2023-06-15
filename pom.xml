@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <scope>runtime</scope>
+            <scope>2.3.0</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
