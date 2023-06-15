@@ -7,7 +7,6 @@ import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
