@@ -19,7 +19,9 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String name;
-    private String mail;
+    @Column(nullable = false, unique = true)
+    private String email;
+    @Column(nullable = false, columnDefinition = "text")
     private String password;
 
     @OneToMany(mappedBy = "user")

@@ -11,6 +11,6 @@ import lombok.Setter;
 @Setter
 public class UserRes {
     private String message;
-    private String mail;
+    private String email;
     private String name;
 }

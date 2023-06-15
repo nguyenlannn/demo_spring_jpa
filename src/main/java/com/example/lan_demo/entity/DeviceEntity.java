@@ -21,9 +21,13 @@ public class DeviceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    @Column(nullable = false, columnDefinition = "text")
     private String userAgent;
+    @Column(nullable = false, columnDefinition = "text")
     private String accessToken;
+    @Column(nullable = false, columnDefinition = "text")
     private String refreshToken;
+
     private DeviceEnum isDelete;
     @ManyToOne
     @JoinColumn(name = "user_id")

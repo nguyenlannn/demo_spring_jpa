@@ -15,19 +15,20 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository mUserRepository;
-    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder mpasswordEncoder;
     @Override
     public UserRes createAccount(UserReq userReq) {
         UserEntity userEntity= new UserEntity();
-            if(mUserRepository.getMail(userReq.getEmail())){
+            if(mUserRepository.getByEmail(userReq.getEmail())){
             throw new BadRequestException("mail đã tồn tại");
         }
-            userEntity.setMail(userReq.getEmail());
-            userEntity.setPassword(passwordEncoder.encode(userReq.getPassword()));
+            userEntity.setEmail(userReq.getEmail());
+//          userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));
+            userEntity.setPassword(userReq.getPassword());
             userEntity.setName(userReq.getName());
             mUserRepository.save(userEntity);
             UserRes userRes=new UserRes();
-            userRes.setMail(userEntity.getMail());
+            userRes.setEmail(userEntity.getEmail());
             userRes.setName(userEntity.getName());
         return userRes;
     }
