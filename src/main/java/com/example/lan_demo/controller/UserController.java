@@ -49,8 +49,10 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.success(tokenRes, "đăng nhập thành công"));
     }
 
-//    @DeleteMapping("/logout")
-//    public ResponseEntity<?> logout(){
-//
-//    }
+    @PostMapping("/refreshToken")
+    public ResponseEntity<BaseResponse> refreshToken(HttpServletRequest httpServletRequest) {
+        return ResponseEntity.ok(BaseResponse.success(
+                mUserService.refreshToken(httpServletRequest),
+                "refresh token successful"));
+    }
 }

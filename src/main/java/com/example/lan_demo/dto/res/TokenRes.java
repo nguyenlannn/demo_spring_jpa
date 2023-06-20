@@ -9,6 +9,5 @@ import lombok.*;
 @Builder
 public class TokenRes {
     private String accessToken;
-
     private String refreshToken;
 }

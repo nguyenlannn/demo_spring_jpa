@@ -19,6 +19,6 @@ public class HandlerException {
         if(e instanceof UnauthorizedException){
             return new ResponseEntity<>(BaseResponse.error(e.getMessage(), 401), HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(BaseResponse.error(e), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(BaseResponse.error(e.getMessage(), 500), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
