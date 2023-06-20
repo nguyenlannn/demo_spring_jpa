@@ -34,6 +34,16 @@ public class BaseResponse {
                 .data(data)
                 .message(message).build();
     }
+
+    public static BaseResponse error(Object data) {
+        return BaseResponse.builder()
+                .success(false)
+//                .errorCode(errorCode)
+                .data(data)
+//                .message(message)
+                .build();
+    }
+
     public static BaseResponse success(String message) {
         return BaseResponse.builder()
                 .success(true)
