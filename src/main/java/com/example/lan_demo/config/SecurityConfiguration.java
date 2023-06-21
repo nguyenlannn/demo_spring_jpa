@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Optional;
 
@@ -20,6 +21,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements AuditorAware<String> {
 
     private final UserDetailServiceConfig mUserDetailServiceConfig;
+
+    private final FilterConfig mFilterConfig;
 
     @Override
     @Bean
@@ -47,7 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         http.cors();
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeRequests().antMatchers("/**").permitAll();
+        http.authorizeRequests().antMatchers("/basic/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
+        http.addFilterBefore(mFilterConfig, UsernamePasswordAuthenticationFilter.class);
     }
 }

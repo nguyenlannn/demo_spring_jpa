@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.lan_demo.base.AuthContext;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Date;
 import java.util.Objects;
 
@@ -34,11 +34,14 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder mpasswordEncoder;
 
+    private final AuthContext authContext;
+
     @Value("${JWT_SECRET}")
     private String JWT_SECRET;
 
     @Value("${JWT_ACCESS_TOKEN}")
     private Long JWT_ACCESS_TOKEN;
+
     @Override
     public UserRes createAccount(UserReq userReq) {
         UserEntity userEntity = userReq.toUserEntity();
@@ -78,7 +81,6 @@ public class UserServiceImpl implements UserService {
                                     .sign(algorithm))
                             .refreshToken(refreshToken)
                             .build();
-                    //updateAccessToken(request, tokenProduceDto);
                 } else {
                     throw new UnauthorizedException("unauthorized");
                 }
@@ -88,5 +90,17 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new UnauthorizedException("unauthorized");
         }
+    }
+
+    @Override
+    public UserRes getDetailUser() {
+        String email=authContext.getAccount().getEmail();
+        UserEntity userRes = mUserRepository.findByEmail(authContext.getAccount().getEmail());
+
+        UserRes userRes1=new UserRes();
+        userRes1.setId(userRes.getId());
+        userRes1.setName(userRes.getName());
+        userRes1.setEmail(userRes.getEmail());
+        return userRes1;
     }
 }

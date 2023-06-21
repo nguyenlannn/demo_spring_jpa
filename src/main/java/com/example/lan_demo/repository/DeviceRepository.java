@@ -4,4 +4,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DeviceRepository {
+
+    Boolean existsByUserAgentAndAccessToken(String userAgent, String accessToken);
 }

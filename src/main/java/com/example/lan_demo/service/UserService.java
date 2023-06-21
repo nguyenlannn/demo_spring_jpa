@@ -3,6 +3,7 @@ package com.example.lan_demo.service;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
+import com.example.lan_demo.entity.UserEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,4 +14,6 @@ public interface UserService {
     UserRes createAccount(UserReq userReq);
 
     TokenRes refreshToken(HttpServletRequest httpServletRequest);
+
+    UserRes getDetailUser();
 }
