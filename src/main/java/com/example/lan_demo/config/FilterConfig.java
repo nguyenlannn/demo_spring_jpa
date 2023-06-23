@@ -4,12 +4,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.lan_demo.base.Account;
 import com.example.lan_demo.base.AuthContext;
 import com.example.lan_demo.base.BaseResponse;
+import com.example.lan_demo.repository.DeviceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -22,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.USER_AGENT;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
@@ -30,9 +30,8 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 public class FilterConfig extends OncePerRequestFilter {
     @Value("${JWT_SECRET}")
     private String JWT_SECRET;
-
-    @Autowired
     private final AuthContext authContext;
+    private final DeviceRepository mDeviceRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest
@@ -56,9 +55,17 @@ public class FilterConfig extends OncePerRequestFilter {
 
                     if (decodedJWT.getClaim("type").asString().equalsIgnoreCase("access")) {
                         String email = decodedJWT.getSubject();
+                        authContext.setEmail(email);
 
-                        authContext.setAuth(new Account(email));
-
+                        if (mDeviceRepository.existsByUserAgentAndAccessToken(
+                                httpServletRequest.getHeader(USER_AGENT),
+                                token)) {
+                            filterChain.doFilter(httpServletRequest, httpServletResponse);
+                        } else {
+                            new ObjectMapper().writeValue(
+                                    httpServletResponse.getOutputStream()
+                                    , BaseResponse.error("expired version", 401));
+                        }
                         filterChain.doFilter(httpServletRequest, httpServletResponse);
 
                     } else {

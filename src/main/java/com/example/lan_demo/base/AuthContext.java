@@ -1,16 +1,14 @@
 package com.example.lan_demo.base;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 @Component
 @RequestScope
-@Getter
+@Data
+@RequiredArgsConstructor
 public class AuthContext {
-    private Account account;
-
-    public void setAuth(Account account) {
-        this.account = account;
-    }
+    private String email;
 }

@@ -5,16 +5,22 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.lan_demo.base.AuthContext;
+import com.example.lan_demo.config.TokenConfig;
+import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
+import com.example.lan_demo.entity.DeviceEntity;
 import com.example.lan_demo.entity.UserEntity;
 import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.exception.UnauthorizedException;
+import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.example.lan_demo.enums.DeviceEnum.NO;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.USER_AGENT;
 
 @RequiredArgsConstructor
 @Service
@@ -31,11 +39,14 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository mUserRepository;
-
     private final PasswordEncoder mpasswordEncoder;
-
     private final AuthContext authContext;
 
+    private final TokenConfig mTokenConfig;
+
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
+
+    private final DeviceRepository mDeviceRepository;
     @Value("${JWT_SECRET}")
     private String JWT_SECRET;
 
@@ -59,6 +70,7 @@ public class UserServiceImpl implements UserService {
         userRes.setName(userEntity.getName());
         return userRes;
     }
+
 
     @Override
     public TokenRes refreshToken(HttpServletRequest request) {
@@ -94,13 +106,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserRes getDetailUser() {
-        String email=authContext.getAccount().getEmail();
-        UserEntity userRes = mUserRepository.findByEmail(authContext.getAccount().getEmail());
+        UserEntity userEntity = mUserRepository.findByEmail(authContext.getEmail());
+        UserRes userRes = new UserRes();
+        userRes.setId(userEntity.getId());
+        userRes.setName(userEntity.getName());
+        userRes.setEmail(userEntity.getEmail());
+        return userRes;
+    }
 
-        UserRes userRes1=new UserRes();
-        userRes1.setId(userRes.getId());
-        userRes1.setName(userRes.getName());
-        userRes1.setEmail(userRes.getEmail());
-        return userRes1;
+    @Override
+    public TokenRes login(LoginReq loginReq, HttpServletRequest httpServletRequest) {
+        try {
+            daoAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(
+                    loginReq.getEmail(),
+                    loginReq.getPassword()));
+        } catch (Exception e) {
+            throw new BadRequestException("Mật khẩu không chính xác");
+        }
+        TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);
+
+        UserEntity userEntity = mUserRepository.findByEmail(authContext.getEmail());
+            DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndAccessToken(
+                httpServletRequest.getHeader(USER_AGENT),
+                tokenRes.getAccessToken());
+        if (Objects.nonNull(deviceEntity)) {
+            deviceEntity.setAccessToken(tokenRes.getAccessToken());
+            deviceEntity.setRefreshToken(tokenRes.getRefreshToken());
+        } else {
+            deviceEntity = DeviceEntity.builder()
+                    .userAgent(httpServletRequest.getHeader(USER_AGENT))
+                    .accessToken(tokenRes.getAccessToken())
+                    .refreshToken(tokenRes.getRefreshToken())
+                    .isDelete(NO)
+                    .user(userEntity)
+                    .build();
+        }
+        mDeviceRepository.save(deviceEntity);
+        return tokenRes;
     }
 }

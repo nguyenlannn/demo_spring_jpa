@@ -1,5 +1,6 @@
 package com.example.lan_demo.service;
 
+import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
@@ -16,4 +17,6 @@ public interface UserService {
     TokenRes refreshToken(HttpServletRequest httpServletRequest);
 
     UserRes getDetailUser();
+
+    TokenRes login(LoginReq loginReq,HttpServletRequest httpServletRequest);
 }
