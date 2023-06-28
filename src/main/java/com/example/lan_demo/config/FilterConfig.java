@@ -60,13 +60,14 @@ public class FilterConfig extends OncePerRequestFilter {
                         if (mDeviceRepository.existsByUserAgentAndAccessToken(
                                 httpServletRequest.getHeader(USER_AGENT),
                                 token)) {
+                            String userAgent=httpServletRequest.getHeader(USER_AGENT);
                             filterChain.doFilter(httpServletRequest, httpServletResponse);
+
                         } else {
                             new ObjectMapper().writeValue(
                                     httpServletResponse.getOutputStream()
                                     , BaseResponse.error("expired version", 401));
                         }
-                        filterChain.doFilter(httpServletRequest, httpServletResponse);
 
                     } else {
                         new ObjectMapper().writeValue(

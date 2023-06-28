@@ -1,5 +1,6 @@
 package com.example.lan_demo.entity;
 
+import com.example.lan_demo.enums.UserEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,8 @@ public class UserEntity {
     private String email;
     @Column(nullable = false, columnDefinition = "text")
     private String password;
+
+    private UserEnum is_active;
 
     @OneToMany(mappedBy = "user")
     private Collection<DeviceEntity> devices;

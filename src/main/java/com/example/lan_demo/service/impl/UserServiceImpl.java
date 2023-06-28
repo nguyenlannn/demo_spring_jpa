@@ -64,6 +64,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));
         userEntity.setName(userReq.getName());
         mUserRepository.save(userEntity);
+
         UserRes userRes = new UserRes();
         userRes.setId(userEntity.getId());
         userRes.setEmail(userEntity.getEmail());
@@ -125,14 +126,17 @@ public class UserServiceImpl implements UserService {
         }
         TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);
 
-        UserEntity userEntity = mUserRepository.findByEmail(authContext.getEmail());
-            DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndAccessToken(
+        UserEntity userEntity = mUserRepository.findByEmail(loginReq.getEmail());
+
+            DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndUserId(// tìm thiết bị có user agent và userid
                 httpServletRequest.getHeader(USER_AGENT),
-                tokenRes.getAccessToken());
-        if (Objects.nonNull(deviceEntity)) {
+                userEntity.getId());
+
+        if (Objects.nonNull(deviceEntity)) {// nếu tìm thấy =>set lại accesstoken và freshtoken
             deviceEntity.setAccessToken(tokenRes.getAccessToken());
             deviceEntity.setRefreshToken(tokenRes.getRefreshToken());
-        } else {
+
+        } else {// không thấy thì tạo thiết bị mới
             deviceEntity = DeviceEntity.builder()
                     .userAgent(httpServletRequest.getHeader(USER_AGENT))
                     .accessToken(tokenRes.getAccessToken())
@@ -141,7 +145,7 @@ public class UserServiceImpl implements UserService {
                     .user(userEntity)
                     .build();
         }
-        mDeviceRepository.save(deviceEntity);
+        mDeviceRepository.save(deviceEntity); //lưu vào csdl
         return tokenRes;
     }
 }

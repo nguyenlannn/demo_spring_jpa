@@ -1,10 +1,11 @@
 package com.example.lan_demo.service;
 
-import com.example.lan_demo.dto.req.DeleteDeviceReq;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public interface DeviceService {
 
-    void logout( DeleteDeviceReq deleteDeviceReq);
+    void logout(HttpServletRequest request);
 }

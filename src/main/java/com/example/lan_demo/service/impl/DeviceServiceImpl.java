@@ -1,6 +1,7 @@
 package com.example.lan_demo.service.impl;
 
-import com.example.lan_demo.dto.req.DeleteDeviceReq;
+import com.example.lan_demo.entity.DeviceEntity;
+import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.service.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -9,16 +10,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.USER_AGENT;
+
 @RequiredArgsConstructor
 @Service
 @Transactional
 public class DeviceServiceImpl implements DeviceService {
-
-    private final HttpServletRequest httpServletRequest;
     private final DeviceRepository deviceRepository;
+
     @Override
-    public void logout( DeleteDeviceReq deleteDeviceReq) {
-        Integer delete=deviceRepository.deleteByUserAgentAndAccessToken(deleteDeviceReq);
-        if()
+    public void logout(HttpServletRequest request) {
+
+        DeviceEntity deviceEntity = deviceRepository.findByUserAgentAndAccessToken(
+                request.getHeader(USER_AGENT),
+                request.getHeader(AUTHORIZATION).substring("Bearer ".length()));
+
+        if(deviceEntity==null){
+                throw new BadRequestException("Đăng xuất thất bại");
+        }
+            deviceRepository.delete(deviceEntity);
     }
 }
