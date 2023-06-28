@@ -1,6 +1,7 @@
 package com.example.lan_demo.controller;
 
 import com.example.lan_demo.base.BaseResponse;
+import com.example.lan_demo.dto.req.ActiveReq;
 import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.service.UserService;
@@ -26,9 +27,16 @@ public class BasicController {
                 (mUserService.createAccount(userReq),"tạo tài khoản thành công"));
     }
 
+    @PostMapping("/active")
+    public BaseResponse active(@RequestBody ActiveReq activeReq){
+        mUserService.active(activeReq);
+        return BaseResponse.success("Active tài khoản thành công");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginReq loginReq, HttpServletRequest httpServletRequest){
-        return ResponseEntity.ok(BaseResponse.success(mUserService.login(loginReq,httpServletRequest), "Đăng nhập thành công"));
+        return ResponseEntity.ok(BaseResponse.success
+                (mUserService.login(loginReq,httpServletRequest), "Đăng nhập thành công"));
     }
 
     @PostMapping("/refreshToken")
@@ -37,4 +45,6 @@ public class BasicController {
                 mUserService.refreshToken(httpServletRequest),
                 "refresh token thành công"));
     }
+
+
 }

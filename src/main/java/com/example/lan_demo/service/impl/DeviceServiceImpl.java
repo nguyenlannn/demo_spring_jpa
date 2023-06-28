@@ -22,11 +22,11 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void logout(HttpServletRequest request) {
 
-        DeviceEntity deviceEntity = deviceRepository.findByUserAgentAndAccessToken(
+        DeviceEntity deviceEntity = deviceRepository.findByUserAgentAndAccessToken(//query vào db để tìm user agent và accesstoken
                 request.getHeader(USER_AGENT),
                 request.getHeader(AUTHORIZATION).substring("Bearer ".length()));
 
-        if(deviceEntity==null){
+        if(deviceEntity==null){//kiểm tra xem có lấy đc không
                 throw new BadRequestException("Đăng xuất thất bại");
         }
             deviceRepository.delete(deviceEntity);

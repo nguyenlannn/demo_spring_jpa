@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.lan_demo.base.AuthContext;
 import com.example.lan_demo.config.TokenConfig;
+import com.example.lan_demo.dto.req.ActiveReq;
 import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.TokenRes;
@@ -57,19 +58,22 @@ public class UserServiceImpl implements UserService {
     public UserRes createAccount(UserReq userReq) {
         UserEntity userEntity = userReq.toUserEntity();
 
-        if (mUserRepository.existsByEmail(userReq.getEmail())) {
+        if (mUserRepository.existsByEmail(userReq.getEmail())) {//kiểm tra mail
             throw new BadRequestException("email đã tồn tại");
         }
         userEntity.setEmail(userReq.getEmail());
-        userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));
+        userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));//mã hóa mật khẩu
         userEntity.setName(userReq.getName());
         mUserRepository.save(userEntity);
-
         UserRes userRes = new UserRes();
         userRes.setId(userEntity.getId());
         userRes.setEmail(userEntity.getEmail());
         userRes.setName(userEntity.getName());
         return userRes;
+    }
+
+    @Override
+    public void active(ActiveReq activeReq) {
     }
 
 
@@ -124,9 +128,9 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new BadRequestException("Mật khẩu không chính xác");
         }
-        TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);
+        TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);//ren ra token
 
-        UserEntity userEntity = mUserRepository.findByEmail(loginReq.getEmail());
+        UserEntity userEntity = mUserRepository.findByEmail(loginReq.getEmail());//lấy thông tin từ mail
 
             DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndUserId(// tìm thiết bị có user agent và userid
                 httpServletRequest.getHeader(USER_AGENT),
