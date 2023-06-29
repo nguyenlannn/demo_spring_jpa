@@ -13,12 +13,15 @@ import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
 import com.example.lan_demo.entity.DeviceEntity;
 import com.example.lan_demo.entity.UserEntity;
+import com.example.lan_demo.enums.DeviceEnum;
+import com.example.lan_demo.enums.UserEnum;
 import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.exception.UnauthorizedException;
 import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -30,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.example.lan_demo.enums.DeviceEnum.NO;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.USER_AGENT;
 
@@ -64,6 +66,8 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmail(userReq.getEmail());
         userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));//mã hóa mật khẩu
         userEntity.setName(userReq.getName());
+        userEntity.setIsActive(UserEnum.NO);
+
         mUserRepository.save(userEntity);
         UserRes userRes = new UserRes();
         userRes.setId(userEntity.getId());
@@ -74,8 +78,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void active(ActiveReq activeReq) {
+        String random = RandomStringUtils.random(6, "1234567890");
+        UserEntity userEntity = UserEntity.builder()
+                .verification()
+                .build();
     }
-
 
     @Override
     public TokenRes refreshToken(HttpServletRequest request) {
@@ -145,7 +152,7 @@ public class UserServiceImpl implements UserService {
                     .userAgent(httpServletRequest.getHeader(USER_AGENT))
                     .accessToken(tokenRes.getAccessToken())
                     .refreshToken(tokenRes.getRefreshToken())
-                    .isDelete(NO)
+                    .isDelete(DeviceEnum.NO)
                     .user(userEntity)
                     .build();
         }

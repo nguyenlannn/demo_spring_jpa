@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.web.context.annotation.RequestScope;
 
 import javax.persistence.*;
 import javax.persistence.OneToMany;
@@ -28,7 +27,9 @@ public class UserEntity {
     @Column(nullable = false, columnDefinition = "text")
     private String password;
 
-    private UserEnum is_active;
+    private UserEnum isActive;
+
+    private String verification;
 
     @OneToMany(mappedBy = "user")
     private Collection<DeviceEntity> devices;
