@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
         }
         userEntity.setVerification(json);
 
-        sendEmailContainVerificationCode(userReq.getEmail(),);
+        sendEmailContainVerificationCode(userReq.getEmail(),random);
 
         mUserRepository.save(userEntity);
         UserRes userRes = new UserRes();
