@@ -12,4 +12,5 @@ import java.sql.Timestamp;
 public class Verification {
     private String code;
     private Timestamp updateTime;
+    private Timestamp activationCodeLifetime;
 }

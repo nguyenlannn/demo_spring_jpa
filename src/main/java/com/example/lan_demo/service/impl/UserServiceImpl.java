@@ -22,8 +22,10 @@ import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
 
@@ -65,9 +69,11 @@ public class UserServiceImpl implements UserService {
     @Value("${JWT_ACCESS_TOKEN}")
     private Long JWT_ACCESS_TOKEN;
 
+    @Value("${ACTIVATION_CODE_LIFETIME}")
+    private Long ACTIVATION_CODE_LIFETIME;
+
     private final JavaMailSender mJavaMailSender;
 
-    @Async// annotation luồng  bất đồng bộ
     @Override
     public UserRes createAccount(UserReq userReq) {
         UserEntity userEntity = userReq.toUserEntity();
@@ -88,13 +94,14 @@ public class UserServiceImpl implements UserService {
             json = ow.writeValueAsString(Verification.builder()
                             .code(random)
                             .updateTime(new Timestamp(System.currentTimeMillis()))
+                            .activationCodeLifetime(new Timestamp(System.currentTimeMillis()+ ACTIVATION_CODE_LIFETIME))
                     .build());
         } catch (JsonProcessingException ignored) {
+
         }
         userEntity.setVerification(json);
 
         sendEmailContainVerificationCode(userReq.getEmail(),random);
-
         mUserRepository.save(userEntity);
         UserRes userRes = new UserRes();
         userRes.setId(userEntity.getId());
@@ -103,6 +110,7 @@ public class UserServiceImpl implements UserService {
         return userRes;
     }
 
+    @Async// annotation luồng  bất đồng bộ- tác vụ gửi mail sẽ chậm hơn so với kết quả api trả về
     public void sendEmailContainVerificationCode(String toEmail, String code) {
 
         SimpleMailMessage message = new SimpleMailMessage();
@@ -122,8 +130,15 @@ public class UserServiceImpl implements UserService {
         if(userEntity.getIsActive()==YES){
             throw new BadRequestException("tài khoản đã kích hoạt");
         }
-        if(userEntity.getVerification().equals(activeReq.getCode())){
+        Gson gson = new Gson();
+        Verification target2 = gson.fromJson(userEntity.getVerification(), Verification.class);
+
+        if(target2.getCode().equals(activeReq.getCode())){
             throw new BadRequestException("mã code không đúng");
+        }
+
+        if (LocalDateTime.now().isAfter(target2.getActivationCodeLifetime().toLocalDateTime())) {
+            throw new BadRequestException("Mã xác thực hết hạn");
         }
         userEntity.setIsActive(YES);
         mUserRepository.save(userEntity);
