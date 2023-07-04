@@ -24,7 +24,7 @@ public class BasicController {
     @PostMapping("/register")
     public ResponseEntity<BaseResponse> createAccount(@RequestBody @Valid UserReq userReq) {
         return ResponseEntity.ok().body(BaseResponse.success
-                (mUserService.createAccount(userReq),"tạo tài khoản thành công"));
+                (mUserService.createAccount(userReq),"Tạo tài khoản thành công"));
     }
 
     @PostMapping("/active")
@@ -43,8 +43,6 @@ public class BasicController {
     public ResponseEntity<BaseResponse> refreshToken(HttpServletRequest httpServletRequest) {
         return ResponseEntity.ok(BaseResponse.success(
                 mUserService.refreshToken(httpServletRequest),
-                "refresh token thành công"));
+                "Refresh token thành công"));
     }
-
-
 }
