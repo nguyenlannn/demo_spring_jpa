@@ -22,7 +22,6 @@ import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
@@ -39,9 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
 
@@ -92,16 +89,16 @@ public class UserServiceImpl implements UserService {
         String json = null;
         try {
             json = ow.writeValueAsString(Verification.builder()
-                            .code(random)
-                            .updateTime(new Timestamp(System.currentTimeMillis()))
-                            .activationCodeLifetime(new Timestamp(System.currentTimeMillis()+ ACTIVATION_CODE_LIFETIME))
+                    .code(random)
+                    .updateTime(LocalDateTime.now())
+                    .activationCodeLifetime(LocalDateTime.now().plusMinutes(1))
                     .build());
         } catch (JsonProcessingException ignored) {
 
         }
         userEntity.setVerification(json);
 
-        sendEmailContainVerificationCode(userReq.getEmail(),random);
+        sendEmailContainVerificationCode(userReq.getEmail(), random);
         mUserRepository.save(userEntity);
         UserRes userRes = new UserRes();
         userRes.setId(userEntity.getId());
@@ -123,21 +120,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void active(ActiveReq activeReq) {
-        UserEntity userEntity=mUserRepository.findByEmail(activeReq.getEmail());
-        if(userEntity==null){
+        UserEntity userEntity = mUserRepository.findByEmail(activeReq.getEmail());
+        if (userEntity == null) {
             throw new BadRequestException("email không tồn tại");
         }
-        if(userEntity.getIsActive()==YES){
+        if (userEntity.getIsActive() == YES) {
             throw new BadRequestException("tài khoản đã kích hoạt");
         }
         Gson gson = new Gson();
         Verification target2 = gson.fromJson(userEntity.getVerification(), Verification.class);
 
-        if(target2.getCode().equals(activeReq.getCode())){
+        if (target2.getCode().equals(activeReq.getCode())) {
             throw new BadRequestException("mã code không đúng");
         }
 
-        if (LocalDateTime.now().isAfter(target2.getActivationCodeLifetime().toLocalDateTime())) {
+        if (LocalDateTime.now().compareTo(target2.getActivationCodeLifetime()) > 0) {
             throw new BadRequestException("Mã xác thực hết hạn");
         }
         userEntity.setIsActive(YES);
@@ -199,7 +196,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = mUserRepository.findByEmail(loginReq.getEmail());//lấy thông tin từ mail
 
-            DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndUserId(// tìm thiết bị có user agent và userid
+        DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndUserId(// tìm thiết bị có user agent và userid
                 httpServletRequest.getHeader(USER_AGENT),
                 userEntity.getId());
 

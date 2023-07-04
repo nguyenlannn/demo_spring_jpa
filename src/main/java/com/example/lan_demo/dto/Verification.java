@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @Builder
 public class Verification {
     private String code;
-    private Timestamp updateTime;
-    private Timestamp activationCodeLifetime;
+    private LocalDateTime updateTime;
+    private LocalDateTime activationCodeLifetime;
 }
