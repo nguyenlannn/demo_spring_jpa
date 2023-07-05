@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +39,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.example.lan_demo.enums.UserEnum.NO;
 import static com.example.lan_demo.enums.UserEnum.YES;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.USER_AGENT;
@@ -66,8 +69,8 @@ public class UserServiceImpl implements UserService {
     @Value("${JWT_ACCESS_TOKEN}")
     private Long JWT_ACCESS_TOKEN;
 
-    @Value("${ACTIVATION_CODE_LIFETIME}")
-    private Long ACTIVATION_CODE_LIFETIME;
+//    @Value("${ACTIVATION_CODE_LIFETIME}")
+//    private Long ACTIVATION_CODE_LIFETIME;
 
     private final JavaMailSender mJavaMailSender;
 
@@ -75,30 +78,36 @@ public class UserServiceImpl implements UserService {
     public UserRes createAccount(UserReq userReq) {
         UserEntity userEntity = userReq.toUserEntity();
 
-        if (mUserRepository.existsByEmail(userReq.getEmail())) {//kiểm tra mail
+        if (mUserRepository.existsByEmail(userReq.getEmail())) {
             throw new BadRequestException("email đã tồn tại");
         }
         String random = RandomStringUtils.random(6, "1234567890");
 
         userEntity.setEmail(userReq.getEmail());
-        userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));//mã hóa mật khẩu
+        userEntity.setPassword(mpasswordEncoder.encode(userEntity.getPassword()));
         userEntity.setName(userReq.getName());
         userEntity.setIsActive(UserEnum.NO);
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();//convert dữ liệu và lưu vào db
-        String json = null;
-        try {
-            json = ow.writeValueAsString(Verification.builder()
-                    .code(random)
-                    .updateTime(LocalDateTime.now())
-                    .activationCodeLifetime(LocalDateTime.now().plusMinutes(1))
-                    .build());
-        } catch (JsonProcessingException ignored) {
+//        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+//        String json = null;
+//        try {
+//            json = ow.writeValueAsString(Verification.builder()
+//                    .code(random)
+//                    .updateTime(LocalDateTime.now())
+//                    .activationCodeLifetime(LocalDateTime.now().plusMinutes(1))
+//                    .build());
+//        } catch (JsonProcessingException ignored) {
+//        }
+        Verification verification = Verification.builder()
+                .code(random)
+                .updateTime(LocalDateTime.now().toString())
+                .activationCodeLifetime(LocalDateTime.now().plusMinutes(30).toString())
+                .build();
 
-        }
-        userEntity.setVerification(json);
+        userEntity.setVerification(new Gson().toJson(verification));
 
         sendEmailContainVerificationCode(userReq.getEmail(), random);
+
         mUserRepository.save(userEntity);
         UserRes userRes = new UserRes();
         userRes.setId(userEntity.getId());
@@ -107,7 +116,7 @@ public class UserServiceImpl implements UserService {
         return userRes;
     }
 
-    @Async// annotation luồng  bất đồng bộ- tác vụ gửi mail sẽ chậm hơn so với kết quả api trả về
+    @Async
     public void sendEmailContainVerificationCode(String toEmail, String code) {
 
         SimpleMailMessage message = new SimpleMailMessage();
@@ -130,12 +139,12 @@ public class UserServiceImpl implements UserService {
         Gson gson = new Gson();
         Verification target2 = gson.fromJson(userEntity.getVerification(), Verification.class);
 
-        if (target2.getCode().equals(activeReq.getCode())) {
-            throw new BadRequestException("mã code không đúng");
+        if (LocalDateTime.now().compareTo(LocalDateTime.parse(target2.getActivationCodeLifetime())) > 0) {
+            throw new BadRequestException("Mã xác thực hết hạn");
         }
 
-        if (LocalDateTime.now().compareTo(target2.getActivationCodeLifetime()) > 0) {
-            throw new BadRequestException("Mã xác thực hết hạn");
+        if (!target2.getCode().equals(activeReq.getCode())) {
+            throw new BadRequestException("Mã code không đúng");
         }
         userEntity.setIsActive(YES);
         mUserRepository.save(userEntity);
@@ -185,6 +194,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public TokenRes login(LoginReq loginReq, HttpServletRequest httpServletRequest) {
+
         try {
             daoAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(
                     loginReq.getEmail(),
@@ -192,9 +202,26 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new BadRequestException("Mật khẩu không chính xác");
         }
-        TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);//ren ra token
 
         UserEntity userEntity = mUserRepository.findByEmail(loginReq.getEmail());//lấy thông tin từ mail
+        String random = RandomStringUtils.random(6, "1234567890");
+        if(userEntity.getIsActive()==NO){
+            Gson gson = new Gson();
+            Verification target2 = gson.fromJson(userEntity.getVerification(), Verification.class);
+
+            if (LocalDateTime.now().isAfter(LocalDateTime.parse(target2.getActivationCodeLifetime()))) {
+                Verification verification = Verification.builder()
+                        .code(random)
+                        .updateTime(LocalDateTime.now().toString())
+                        .activationCodeLifetime(LocalDateTime.now().plusMinutes(30).toString())
+                        .build();
+                userEntity.setVerification(new Gson().toJson(verification));
+                sendEmailContainVerificationCode(userEntity.getEmail(), random);
+            }
+            throw new BadRequestException("Tài khoản chưa kích hoạt");
+        }
+
+        TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);//ren ra token
 
         DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndUserId(// tìm thiết bị có user agent và userid
                 httpServletRequest.getHeader(USER_AGENT),

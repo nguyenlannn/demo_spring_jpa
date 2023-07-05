@@ -19,7 +19,7 @@ import java.util.Collection;
 @Entity(name = "user")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
     @Column(nullable = false, unique = true)

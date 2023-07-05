@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class ActiveReq {
     private String email;
-    private Integer code;
+    private String code;
 }

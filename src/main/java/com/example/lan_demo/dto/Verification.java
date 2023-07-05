@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @Builder
 public class Verification {
     private String code;
-    private LocalDateTime updateTime;
-    private LocalDateTime activationCodeLifetime;
+    private String updateTime;
+    private String activationCodeLifetime;
 }
