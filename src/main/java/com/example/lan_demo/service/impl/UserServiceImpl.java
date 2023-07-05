@@ -21,11 +21,7 @@ import com.example.lan_demo.exception.UnauthorizedException;
 import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
@@ -239,8 +234,10 @@ public class UserServiceImpl implements UserService {
                     .isDelete(DeviceEnum.NO)
                     .user(userEntity)
                     .build();
+
         }
         mDeviceRepository.save(deviceEntity); //lưu vào csdl
         return tokenRes;
     }
+
 }

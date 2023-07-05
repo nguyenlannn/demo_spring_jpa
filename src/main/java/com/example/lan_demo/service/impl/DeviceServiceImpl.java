@@ -1,5 +1,6 @@
 package com.example.lan_demo.service.impl;
 
+import com.example.lan_demo.dto.req.ActiveDeviceReq;
 import com.example.lan_demo.entity.DeviceEntity;
 import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.repository.DeviceRepository;
@@ -26,9 +27,14 @@ public class DeviceServiceImpl implements DeviceService {
                 request.getHeader(USER_AGENT),
                 request.getHeader(AUTHORIZATION).substring("Bearer ".length()));
 
-        if(deviceEntity==null){//kiểm tra xem có lấy đc không
+        if(deviceEntity==null){
                 throw new BadRequestException("Đăng xuất thất bại");
         }
             deviceRepository.delete(deviceEntity);
+    }
+
+    @Override
+    public void activeDevice(ActiveDeviceReq activeDeviceReq) {
+
     }
 }

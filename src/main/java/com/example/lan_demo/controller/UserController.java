@@ -15,4 +15,5 @@ public class UserController {
     public BaseResponse getDetailUser(){
         return BaseResponse.success(mUserService.getDetailUser());
     }
+
 }
