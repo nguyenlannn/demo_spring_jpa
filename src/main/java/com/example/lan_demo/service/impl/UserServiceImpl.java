@@ -98,7 +98,6 @@ public class UserServiceImpl implements UserService {
                 .updateTime(LocalDateTime.now().toString())
                 .activationCodeLifetime(LocalDateTime.now().plusMinutes(30).toString())
                 .build();
-
         userEntity.setVerification(new Gson().toJson(verification));
 
         sendEmailContainVerificationCode(userReq.getEmail(), random);
@@ -200,11 +199,11 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = mUserRepository.findByEmail(loginReq.getEmail());//lấy thông tin từ mail
         String random = RandomStringUtils.random(6, "1234567890");
-        if(userEntity.getIsActive()==NO){
+        if (userEntity.getIsActive() == NO) {
             Gson gson = new Gson();
-            Verification target2 = gson.fromJson(userEntity.getVerification(), Verification.class);
+            Verification target1 = gson.fromJson(userEntity.getVerification(), Verification.class);
 
-            if (LocalDateTime.now().isAfter(LocalDateTime.parse(target2.getActivationCodeLifetime()))) {
+            if (LocalDateTime.now().isAfter(LocalDateTime.parse(target1.getActivationCodeLifetime()))) {
                 Verification verification = Verification.builder()
                         .code(random)
                         .updateTime(LocalDateTime.now().toString())
@@ -216,28 +215,51 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Tài khoản chưa kích hoạt");
         }
 
-        TokenRes tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);//ren ra token
-
         DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndUserId(// tìm thiết bị có user agent và userid
                 httpServletRequest.getHeader(USER_AGENT),
                 userEntity.getId());
+        TokenRes tokenRes;
+        if (Objects.isNull(deviceEntity)) {
+            tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);
+            Verification verification = Verification.builder()
+                    .code(random)
+                    .updateTime(LocalDateTime.now().toString())
+                    .activationCodeLifetime(LocalDateTime.now().plusMinutes(30).toString())
+                    .build();
 
-        if (Objects.nonNull(deviceEntity)) {// nếu tìm thấy =>set lại accesstoken và freshtoken
-            deviceEntity.setAccessToken(tokenRes.getAccessToken());
-            deviceEntity.setRefreshToken(tokenRes.getRefreshToken());
-
-        } else {// không thấy thì tạo thiết bị mới
             deviceEntity = DeviceEntity.builder()
                     .userAgent(httpServletRequest.getHeader(USER_AGENT))
                     .accessToken(tokenRes.getAccessToken())
                     .refreshToken(tokenRes.getRefreshToken())
                     .isDelete(DeviceEnum.NO)
+                    .deviceVerification(new Gson().toJson(verification))
                     .user(userEntity)
                     .build();
+            mDeviceRepository.save(deviceEntity);
 
+            sendEmailContainVerificationCode(deviceEntity.getUser().getEmail(), random);
+
+        } else {
+            tokenRes = mTokenConfig.generateToken(loginReq.getEmail(), httpServletRequest);
+                if (deviceEntity.getIsActive() == DeviceEnum.NO) {
+                Gson gson = new Gson();
+                Verification target2 = gson.fromJson(deviceEntity.getDeviceVerification(), Verification.class);
+                if (LocalDateTime.now().isAfter(LocalDateTime.parse(target2.getActivationCodeLifetime()))) {
+                    Verification verification = Verification.builder()
+                            .code(random)
+                            .updateTime(LocalDateTime.now().toString())
+                            .activationCodeLifetime(LocalDateTime.now().plusMinutes(30).toString())
+                            .build();
+                    deviceEntity.setDeviceVerification(new Gson().toJson(verification));
+                    deviceEntity.setAccessToken(tokenRes.getAccessToken());
+                    deviceEntity.setRefreshToken(tokenRes.getRefreshToken());
+                    sendEmailContainVerificationCode(userEntity.getEmail(), random);
+
+                }
+                    throw new BadRequestException("Tài khoản chưa kích hoạt");
+            }
         }
-        mDeviceRepository.save(deviceEntity); //lưu vào csdl
+        mDeviceRepository.save(deviceEntity);
         return tokenRes;
     }
-
 }

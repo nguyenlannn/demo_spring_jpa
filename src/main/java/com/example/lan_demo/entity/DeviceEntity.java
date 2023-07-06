@@ -31,6 +31,10 @@ public class DeviceEntity {
     private String refreshToken;
 
     private DeviceEnum isDelete;
+
+    private DeviceEnum isActive;
+
+    private String deviceVerification;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
