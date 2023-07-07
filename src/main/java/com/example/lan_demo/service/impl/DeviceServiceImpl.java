@@ -3,9 +3,7 @@ package com.example.lan_demo.service.impl;
 import com.example.lan_demo.dto.Verification;
 import com.example.lan_demo.dto.req.ActiveDeviceReq;
 import com.example.lan_demo.entity.DeviceEntity;
-import com.example.lan_demo.entity.UserEntity;
 import com.example.lan_demo.enums.DeviceEnum;
-import com.example.lan_demo.enums.UserEnum;
 import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.service.DeviceService;
@@ -60,7 +58,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void logout(HttpServletRequest request) {
 
-        DeviceEntity deviceEntity = deviceRepository.findByUserAgentAndAccessToken(//query vào db để tìm user agent và accesstoken
+        DeviceEntity deviceEntity = deviceRepository.findByUserAgentAndAccessToken(
                 request.getHeader(USER_AGENT),
                 request.getHeader(AUTHORIZATION).substring("Bearer ".length()));
 
