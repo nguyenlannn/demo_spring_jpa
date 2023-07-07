@@ -5,6 +5,7 @@ import com.example.lan_demo.dto.req.ActiveDeviceReq;
 import com.example.lan_demo.service.DeviceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 public class DeviceController {
     private final DeviceService deviceService;
 
-    @PostMapping("/active")
-    public BaseResponse activeDevice(ActiveDeviceReq activeDeviceReq) {
+    @PostMapping("/basic/activeDevice")
+    public BaseResponse activeDevice(@RequestBody ActiveDeviceReq activeDeviceReq) {
         deviceService.activeDevice(activeDeviceReq);
         return BaseResponse.success("Kích hoạt thiết bị thành công");
     }

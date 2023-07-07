@@ -6,6 +6,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.lan_demo.base.AuthContext;
 import com.example.lan_demo.base.BaseResponse;
+import com.example.lan_demo.entity.DeviceEntity;
+import com.example.lan_demo.enums.DeviceEnum;
+import com.example.lan_demo.exception.BadRequestException;
 import com.example.lan_demo.repository.DeviceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -58,9 +61,13 @@ public class FilterConfig extends OncePerRequestFilter {
                         authContext.setEmail(email);
 
                         if (mDeviceRepository.existsByUserAgentAndAccessToken(
-                                httpServletRequest.getHeader(USER_AGENT),
-                                token)) {
-                            String userAgent=httpServletRequest.getHeader(USER_AGENT);
+                                httpServletRequest.getHeader(USER_AGENT), token))
+                        {
+                            DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndAccessToken(
+                                    httpServletRequest.getHeader(USER_AGENT), token);
+                            if(deviceEntity.getIsActive()== DeviceEnum.NO){
+                                throw new BadRequestException("Thiết bị chưa kích hoạt");
+                            }
                             filterChain.doFilter(httpServletRequest, httpServletResponse);
 
                         } else {
