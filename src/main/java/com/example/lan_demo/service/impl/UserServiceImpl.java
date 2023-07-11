@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static com.example.lan_demo.enums.UserEnum.NO;
@@ -264,4 +265,5 @@ public class UserServiceImpl implements UserService {
         mDeviceRepository.save(deviceEntity);
         return tokenRes;
     }
+
 }

@@ -7,6 +7,7 @@ import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
 import com.example.lan_demo.entity.UserEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;

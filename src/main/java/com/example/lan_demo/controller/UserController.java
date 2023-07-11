@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService mUserService;
+
     @GetMapping("/DetailUser")
     public BaseResponse getDetailUser(){
         return BaseResponse.success(mUserService.getDetailUser());
