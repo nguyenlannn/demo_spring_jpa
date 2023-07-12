@@ -17,29 +17,27 @@ import java.util.List;
 public abstract class UserTestRepositoryImpl implements JpaRepository<UserEntity, Integer>, UserTestRepository {
     EntityManager em;
 
-    abstract List<UserEntity> findByEmail(String email);
+    @Query(value = "select e from user e where e.name = :name")
+    public abstract List<UserEntity> findAllByName1(@Param("name") String name);
 
-    @Query(value = "select e from user e where e.email = :email")
-    public abstract List<UserEntity> findByEmail1(@Param("email") String email);
+    @Query(value = "select e from user e where e.name = ?1")
+    public abstract List<UserEntity> findAllByName2(String name);
 
-    @Query(value = "select e from user e where e.email = ?1")
-    public abstract List<UserEntity> findByEmail3(String email);
+    @Query(value = "select * from user e where e.name = ?1", nativeQuery = true)
+    public abstract List<UserEntity> findAllByName3(String name);
 
-    @Query(value = "select * from user e where e.email = ?1", nativeQuery = true)
-    public abstract List<UserEntity> findByEmail2(String email);
+    @Query(value = "select * from user e where e.name = :name", nativeQuery = true)
+    public abstract List<UserEntity> findAllByName4(@Param("email") String name);
 
-    @Query(value = "select * from user e where e.email = :email", nativeQuery = true)
-    public abstract List<UserEntity> findByEmail4(@Param("email") String email);
-
-    public List<UserEntity> findByEmail5(String email){
+    public List<UserEntity> findAllByName5(String name){
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<UserEntity> cq = cb.createQuery(UserEntity.class);
 
         Root<UserEntity> book = cq.from(UserEntity.class);
         List<Predicate> predicates = new ArrayList<>();
 
-        if (email != null) {
-            predicates.add(cb.equal(book.get("email"), email));
+        if (name != null) {
+            predicates.add(cb.equal(book.get("name"), name));
         }
 
         cq.where(predicates.toArray(new Predicate[0]));

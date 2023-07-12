@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import static com.example.lan_demo.enums.UserEnum.NO;
@@ -65,9 +64,6 @@ public class UserServiceImpl implements UserService {
     @Value("${JWT_ACCESS_TOKEN}")
     private Long JWT_ACCESS_TOKEN;
 
-//    @Value("${ACTIVATION_CODE_LIFETIME}")
-//    private Long ACTIVATION_CODE_LIFETIME;
-
     private final JavaMailSender mJavaMailSender;
 
     @Override
@@ -84,7 +80,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setName(userReq.getName());
         userEntity.setIsActive(UserEnum.NO);
 
-//        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+//        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter(); convert từ đối tượng sang json và lưu và db
 //        String json = null;
 //        try {
 //            json = ow.writeValueAsString(Verification.builder()

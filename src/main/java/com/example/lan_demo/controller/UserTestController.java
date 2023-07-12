@@ -13,7 +13,8 @@ public class UserTestController {
     private final UserTestService userTestService;
 
     @GetMapping("/getUserByEmail")
-    public BaseResponse getUser(){
-        return BaseResponse.success(userTestService.getUserByEmail());
+    public BaseResponse getUser(String name){
+
+        return BaseResponse.success(userTestService.getUserByEmail(name));
     }
 }

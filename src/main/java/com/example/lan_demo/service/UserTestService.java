@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UserTestService {
-    UserRes getUserByEmail();
+    UserRes getUserByEmail(String email);
 }
