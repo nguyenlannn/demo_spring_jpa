@@ -200,7 +200,7 @@ public class UserServiceImpl implements UserService {
             Gson gson = new Gson();
             Verification target1 = gson.fromJson(userEntity.getVerification(), Verification.class);
 
-            if (LocalDateTime.now().compareTo(LocalDateTime.parse(target1.getActivationCodeLifetime()))>=0) {
+            if (LocalDateTime.now().compareTo(LocalDateTime.parse(target1.getActivationCodeLifetime())) >= 0) {
                 Verification verification = Verification.builder()
                         .code(random)
                         .updateTime(LocalDateTime.now().toString())

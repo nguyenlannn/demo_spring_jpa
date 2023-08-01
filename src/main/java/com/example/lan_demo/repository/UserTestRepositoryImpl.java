@@ -29,7 +29,7 @@ public abstract class UserTestRepositoryImpl implements JpaRepository<UserEntity
     @Query(value = "select * from user e where e.name = :name", nativeQuery = true)
     public abstract List<UserEntity> findAllByName4(@Param("email") String name);
 
-    public List<UserEntity> findAllByName5(String name){
+    public List<UserEntity> findAllByName5(String name) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<UserEntity> cq = cb.createQuery(UserEntity.class);
 

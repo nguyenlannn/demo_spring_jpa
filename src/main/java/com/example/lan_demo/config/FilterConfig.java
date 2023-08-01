@@ -61,11 +61,10 @@ public class FilterConfig extends OncePerRequestFilter {
                         authContext.setEmail(email);
 
                         if (mDeviceRepository.existsByUserAgentAndAccessToken(
-                                httpServletRequest.getHeader(USER_AGENT), token))
-                        {
+                                httpServletRequest.getHeader(USER_AGENT), token)) {
                             DeviceEntity deviceEntity = mDeviceRepository.findByUserAgentAndAccessToken(
                                     httpServletRequest.getHeader(USER_AGENT), token);
-                            if(deviceEntity.getIsActive()== DeviceEnum.NO){
+                            if (deviceEntity.getIsActive() == DeviceEnum.NO) {
                                 throw new BadRequestException("Thiết bị chưa kích hoạt");
                             }
                             filterChain.doFilter(httpServletRequest, httpServletResponse);

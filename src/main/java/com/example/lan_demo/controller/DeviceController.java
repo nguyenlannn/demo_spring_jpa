@@ -22,7 +22,7 @@ public class DeviceController {
     }
 
     @PostMapping("/logOut")
-    public BaseResponse logout( HttpServletRequest request) {
+    public BaseResponse logout(HttpServletRequest request) {
         deviceService.logout(request);
         return BaseResponse.success("Đăng xuất thành công");
     }

@@ -24,19 +24,19 @@ public class BasicController {
     @PostMapping("/register")
     public ResponseEntity<BaseResponse> createAccount(@RequestBody @Valid UserReq userReq) {
         return ResponseEntity.ok().body(BaseResponse.success
-                (mUserService.createAccount(userReq),"Tạo tài khoản thành công"));
+                (mUserService.createAccount(userReq), "Tạo tài khoản thành công"));
     }
 
     @PostMapping("/active")
-    public BaseResponse active(@RequestBody ActiveReq activeReq){
+    public BaseResponse active(@RequestBody ActiveReq activeReq) {
         mUserService.active(activeReq);
         return BaseResponse.success("Active tài khoản thành công");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginReq loginReq, HttpServletRequest httpServletRequest){
+    public ResponseEntity<?> login(@RequestBody LoginReq loginReq, HttpServletRequest httpServletRequest) {
         return ResponseEntity.ok(BaseResponse.success
-                (mUserService.login(loginReq,httpServletRequest), "Đăng nhập thành công"));
+                (mUserService.login(loginReq, httpServletRequest), "Đăng nhập thành công"));
     }
 
     @PostMapping("/refreshToken")
