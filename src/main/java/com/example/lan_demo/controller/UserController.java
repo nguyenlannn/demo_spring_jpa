@@ -14,7 +14,14 @@ public class UserController {
 
     @GetMapping("/DetailUser")
     public BaseResponse getDetailUser(){
+
         return BaseResponse.success(mUserService.getDetailUser());
     }
+
+    @GetMapping("/listUser")
+    public BaseResponse getListUser(){
+        return BaseResponse.success(mUserService.getListUser());
+    }
+
 
 }

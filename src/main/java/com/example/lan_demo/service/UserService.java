@@ -5,8 +5,8 @@ import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
-
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public interface UserService {
     UserRes createAccount(UserReq userReq);
@@ -18,4 +18,6 @@ public interface UserService {
     UserRes getDetailUser();
 
     TokenRes login(LoginReq loginReq, HttpServletRequest httpServletRequest);
+
+    List<UserRes> getListUser();
 }

@@ -38,8 +38,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 import static com.example.lan_demo.enums.UserEnum.NO;
 import static com.example.lan_demo.enums.UserEnum.YES;
@@ -203,9 +202,11 @@ public class UserServiceImpl implements UserService {
     public UserRes getDetailUser() {
         UserEntity userEntity = mUserRepository.findByEmail(authContext.getEmail());
         UserRes userRes = new UserRes();
+
         userRes.setId(userEntity.getId());
         userRes.setName(userEntity.getName());
         userRes.setEmail(userEntity.getEmail());
+
         return userRes;
     }
 
@@ -286,6 +287,21 @@ public class UserServiceImpl implements UserService {
         }
         mDeviceRepository.save(deviceEntity);
         return tokenRes;
+    }
+
+    @Override
+    public List<UserRes> getListUser() {
+        List<UserEntity> userEntity=mUserRepository.findByName(authContext.getEmail());
+        
+       List<UserRes> res= new ArrayList<>();
+
+        for (int i=0; i<=userEntity.size(); i++) {
+
+            res.set(i, (UserRes) res).setId(userEntity.get(i).getId());
+            res.set(i, (UserRes) res).setEmail(userEntity.get(i).getEmail());
+            res.set(i, (UserRes) res).setName(userEntity.get(i).getName());
+        }
+        return res;
     }
 
 }
