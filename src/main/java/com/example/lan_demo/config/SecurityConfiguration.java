@@ -7,11 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -46,8 +43,7 @@ public class SecurityConfiguration implements AuditorAware<String> {
         return Optional.empty();
     }
 
-
-    @Bean
+    @Bean// bean phải có cho  mã hóa mật khẩu
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(mUserDetailServiceConfig);
@@ -55,7 +51,7 @@ public class SecurityConfiguration implements AuditorAware<String> {
         return authProvider;
     }
 
-    @Bean
+    @Bean// bean quản lí gửi mail
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
@@ -73,7 +69,7 @@ public class SecurityConfiguration implements AuditorAware<String> {
         return mailSender;
     }
 
-    @Bean
+    @Bean //bộ lọc
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors();
         http.csrf().disable();

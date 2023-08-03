@@ -35,7 +35,7 @@ public class DeviceServiceImpl implements DeviceService {
                 httpServletRequest.getHeader(USER_AGENT),
                 httpServletRequest.getHeader(AUTHORIZATION).substring("Bearer ".length()));
 
-        if(deviceEntity==null){
+        if (deviceEntity == null) {
             throw new BadRequestException("Không tìm thấy thiết bị");
         }
         if (deviceEntity.getIsActive() == YES) {
@@ -62,7 +62,7 @@ public class DeviceServiceImpl implements DeviceService {
                 request.getHeader(USER_AGENT),
                 request.getHeader(AUTHORIZATION).substring("Bearer ".length()));
 
-        if(deviceEntity==null){
+        if (deviceEntity == null) {
             throw new BadRequestException("Đăng xuất thất bại");
         }
         deviceRepository.delete(deviceEntity);

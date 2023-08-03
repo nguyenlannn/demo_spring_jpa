@@ -17,12 +17,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserDetailServiceConfig implements UserDetailsService {
     private final UserRepository mUserRepository;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = mUserRepository.findByEmail(email);
         if (Objects.isNull(userEntity)) {
             throw new BadRequestException(email + " không tồn tại");
         }
-        return new User(userEntity.getEmail(), userEntity.getPassword(),new ArrayList<>());
+        return new User(userEntity.getEmail(), userEntity.getPassword(), new ArrayList<>());
     }
 }

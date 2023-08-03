@@ -16,17 +16,19 @@ public class BaseResponse {
 
     private boolean success;
 
-    public static BaseResponse error(String message){
+    public static BaseResponse error(String message) {
         return BaseResponse.builder()
                 .success(false)
                 .message(message).build();
     }
+
     public static BaseResponse error(String message, Integer errorCode) {
         return BaseResponse.builder()
                 .success(false)
                 .errorCode(errorCode)
                 .message(message).build();
     }
+
     public static BaseResponse error(String message, Integer errorCode, Object data) {
         return BaseResponse.builder()
                 .success(false)
@@ -50,12 +52,14 @@ public class BaseResponse {
                 .message(message)
                 .build();
     }
+
     public static BaseResponse success(Object data) {
         return BaseResponse.builder()
                 .success(true)
                 .data(data)
                 .build();
     }
+
     public static BaseResponse success(Object data, String message) {
         return BaseResponse.builder()
                 .success(true)
