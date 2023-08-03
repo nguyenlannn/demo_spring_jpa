@@ -23,9 +23,9 @@ import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +34,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -47,6 +49,7 @@ import static org.springframework.http.HttpHeaders.USER_AGENT;
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Log4j2
 public class UserServiceImpl implements UserService {
 
     private final UserRepository mUserRepository;
@@ -66,6 +69,9 @@ public class UserServiceImpl implements UserService {
 
     private final JavaMailSender mJavaMailSender;
 
+    @Value("${MAIL_USERNAME}")
+    private String MAIL_USERNAME;
+
     @Override
     public UserRes createAccount(UserReq userReq) {
         UserEntity userEntity = userReq.toUserEntity();
@@ -80,6 +86,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setName(userReq.getName());
         userEntity.setIsActive(UserEnum.NO);
 
+//convert từ đối tượng sang json và lưu và db-kieu1
 //        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter(); convert từ đối tượng sang json và lưu và db
 //        String json = null;
 //        try {
@@ -90,6 +97,8 @@ public class UserServiceImpl implements UserService {
 //                    .build());
 //        } catch (JsonProcessingException ignored) {
 //        }
+
+        //convert từ đối tượng sang json và lưu và db-kieu 2
         Verification verification = Verification.builder()
                 .code(random)
                 .updateTime(LocalDateTime.now().toString())
@@ -110,12 +119,29 @@ public class UserServiceImpl implements UserService {
     @Async
     public void sendEmailContainVerificationCode(String toEmail, String code) {
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("lannhatthuy@gmail.com");
-        message.setTo(toEmail);
-        message.setSubject("Mã kích hoạt tài khoản của bạn(yêu cầu không cung cấp cho bất kì ai)!");
-        message.setText(code);
-        mJavaMailSender.send(message);
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("lannhatthuy@gmail.com");
+//        message.setTo(toEmail);
+//        message.setSubject("Mã kích hoạt tài khoản của bạn(yêu cầu không cung cấp cho bất kì ai)!");
+//        String htm = " <h1>Welcome to <a href=\"gpcoder.com\">GP Coder</a></h1> " +
+//                    "<img src=\"https://gpcoder.com/wp-content/uploads/2017/10/Facebook_Icon_GP_2-300x180.png\" " +
+//                    " width=\"300\" " +code+ " height=\"180\" " + " border=\"0\" " + " alt=\" />";
+//        message.setText(htm);
+//        mJavaMailSender.send(message);
+
+        try {
+            MimeMessage message = mJavaMailSender.createMimeMessage();
+            message.setFrom(new InternetAddress(MAIL_USERNAME));
+            message.setRecipients(MimeMessage.RecipientType.TO, toEmail);
+            message.setSubject("Test email from Spring");
+            String htmlContent = "<h1>This is a test Spring Boot email</h1>"
+                    + "<p style='color: red>" + code + "</p>"
+                    + "<p>It can contain <strong>HTML</strong> content.</p>";
+            message.setContent(htmlContent, "text/html; charset=utf-8");
+            mJavaMailSender.send(message);
+        } catch (Exception e) {
+            log.error(e);
+        }
     }
 
     @Override
@@ -200,7 +226,7 @@ public class UserServiceImpl implements UserService {
             Gson gson = new Gson();
             Verification target1 = gson.fromJson(userEntity.getVerification(), Verification.class);
 
-            if (LocalDateTime.now().compareTo(LocalDateTime.parse(target1.getActivationCodeLifetime()))>=0) {
+            if (LocalDateTime.now().compareTo(LocalDateTime.parse(target1.getActivationCodeLifetime())) >= 0) {
                 Verification verification = Verification.builder()
                         .code(random)
                         .updateTime(LocalDateTime.now().toString())
