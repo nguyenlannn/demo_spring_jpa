@@ -2,6 +2,8 @@ package com.example.lan_demo.repository;
 
 import com.example.lan_demo.dto.res.UserRes;
 import com.example.lan_demo.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +41,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query(value = "select u.id, u.email, d.id, d.userAgent from user u join device d on u.id = d.user.id")
     List<UserEntity> testJoin();
+
 }

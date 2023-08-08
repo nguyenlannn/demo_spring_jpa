@@ -7,6 +7,7 @@ import com.example.lan_demo.dto.res.PageRes;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
 import com.example.lan_demo.entity.UserEntity;
+import org.springframework.data.domain.Page;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
