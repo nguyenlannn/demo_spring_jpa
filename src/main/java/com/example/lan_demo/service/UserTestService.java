@@ -1,9 +1,8 @@
 package com.example.lan_demo.service;
 
 import com.example.lan_demo.dto.res.UserRes;
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-@Service
 public interface UserTestService {
-    UserRes getUserByEmail(String email);
+    List<UserRes> getListUserByName(String name);
 }

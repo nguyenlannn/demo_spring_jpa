@@ -11,5 +11,4 @@ public class LanDemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(LanDemoApplication.class, args);
     }
-
 }

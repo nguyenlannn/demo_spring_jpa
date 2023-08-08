@@ -10,6 +10,7 @@ import com.example.lan_demo.dto.Verification;
 import com.example.lan_demo.dto.req.ActiveReq;
 import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
+import com.example.lan_demo.dto.res.PageRes;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
 import com.example.lan_demo.entity.DeviceEntity;
@@ -38,7 +39,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import static com.example.lan_demo.enums.UserEnum.NO;
 import static com.example.lan_demo.enums.UserEnum.YES;
@@ -117,17 +121,15 @@ public class UserServiceImpl implements UserService {
 
     @Async
     public void sendEmailContainVerificationCode(String toEmail, String code) {
-
+// gửi mail thường
 //        SimpleMailMessage message = new SimpleMailMessage();
 //        message.setFrom("lannhatthuy@gmail.com");
 //        message.setTo(toEmail);
 //        message.setSubject("Mã kích hoạt tài khoản của bạn(yêu cầu không cung cấp cho bất kì ai)!");
-//        String htm = " <h1>Welcome to <a href=\"gpcoder.com\">GP Coder</a></h1> " +
-//                    "<img src=\"https://gpcoder.com/wp-content/uploads/2017/10/Facebook_Icon_GP_2-300x180.png\" " +
-//                    " width=\"300\" " +code+ " height=\"180\" " + " border=\"0\" " + " alt=\" />";
-//        message.setText(htm);
+//        message.setText(code);
 //        mJavaMailSender.send(message);
 
+        //gửi mail html
         try {
             MimeMessage message = mJavaMailSender.createMimeMessage();
             message.setFrom(new InternetAddress(MAIL_USERNAME));
@@ -202,11 +204,9 @@ public class UserServiceImpl implements UserService {
     public UserRes getDetailUser() {
         UserEntity userEntity = mUserRepository.findByEmail(authContext.getEmail());
         UserRes userRes = new UserRes();
-
         userRes.setId(userEntity.getId());
         userRes.setName(userEntity.getName());
         userRes.setEmail(userEntity.getEmail());
-
         return userRes;
     }
 
@@ -290,18 +290,80 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRes> getListUser() {
-        List<UserEntity> userEntity=mUserRepository.findByName(authContext.getEmail());
-        
-       List<UserRes> res= new ArrayList<>();
-
-        for (int i=0; i<=userEntity.size(); i++) {
-
-            res.set(i, (UserRes) res).setId(userEntity.get(i).getId());
-            res.set(i, (UserRes) res).setEmail(userEntity.get(i).getEmail());
-            res.set(i, (UserRes) res).setName(userEntity.get(i).getName());
+    public List<UserRes> getListUser(String name) {
+        List<UserEntity> userEntity = mUserRepository.findByName(name);
+        List<UserRes> res = new ArrayList<>();
+//        int size = userEntity.size(); dùng với vòng for truyền thống
+        for (UserEntity i : userEntity) {
+//    dùng set
+//            UserRes userRes = new UserRes();
+//            userRes.setId(i.getId());
+//            userRes.setName(i.getName());
+//            userRes.setEmail(i.getEmail());
+            //dùng builder
+            UserRes userRes = UserRes.builder()
+                    .id(i.getId())
+                    .email(i.getEmail())
+                    .name(i.getName())
+                    .build();
+            res.add(userRes);
         }
         return res;
     }
 
+    @Override
+    public PageRes getPageUserByName(Long pageNo, Long pageSize, String name) {
+        Long total = mUserRepository.getTotalRecord(name);
+        PageRes pageRes = new PageRes();
+        pageRes.setPageSize(pageSize);
+        pageRes.setPageNo(pageNo);
+        pageRes.setTotalRecord(total);
+        pageRes.setTotalPage((long) Math.ceil((double) total /pageSize));
+
+        Long limit=pageSize;
+        Long offset=(pageSize*(pageNo-1));
+
+        List<UserEntity> userResList= mUserRepository.getPaging(name,limit,offset);
+        List<UserRes> res = new ArrayList<>();
+        for(UserEntity i: userResList){
+            UserRes userRes = new UserRes();
+            userRes.setId(i.getId());
+            userRes.setName(i.getName());
+            userRes.setEmail(i.getEmail());
+
+            res.add(userRes);
+            pageRes.setRecord(res);
+        }
+            return pageRes;
+    }
+
+    public void testJoin() {
+        mUserRepository.testJoin().forEach(o->o.getId());
+    }
+
+    @Override
+    public PageRes getPage(Long pageNo, Long pageSize) {
+        Long total = mUserRepository.getTotalRecord1();
+        PageRes pageRes = new PageRes();
+        pageRes.setPageSize(pageSize);
+        pageRes.setPageNo(pageNo);
+        pageRes.setTotalRecord(total);
+        pageRes.setTotalPage((long) Math.ceil((double) total /pageSize));
+
+        Long limit=pageSize;
+        Long offset=(pageSize*(pageNo-1));
+
+        List<UserEntity> userResList= mUserRepository.getPaging1(limit,offset);
+        List<UserRes> res = new ArrayList<>();
+        for(UserEntity i: userResList){
+            UserRes userRes = new UserRes();
+            userRes.setId(i.getId());
+            userRes.setName(i.getName());
+            userRes.setEmail(i.getEmail());
+
+            res.add(userRes);
+            pageRes.setRecord(res);
+        }
+        return pageRes;
+    }
 }
