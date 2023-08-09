@@ -6,8 +6,7 @@ import com.example.lan_demo.dto.req.UserReq;
 import com.example.lan_demo.dto.res.PageRes;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
-import com.example.lan_demo.entity.UserEntity;
-import org.springframework.data.domain.Page;
+import com.example.lan_demo.enums.UserEnum;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -25,9 +24,7 @@ public interface UserService {
 
     List<UserRes> getListUser(String name);
 
-    PageRes getPageUserByName(Long pageNo,Long pageSize, String name);
+    PageRes getPageUser(Long pageNo, Long pageSize, String name, String email, Integer id, UserEnum isActive);
 
     void testJoin();
-
-    PageRes getPage(Long pageNo, Long pageSize);
 }

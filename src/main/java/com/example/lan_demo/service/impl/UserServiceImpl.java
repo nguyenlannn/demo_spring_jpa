@@ -27,8 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -314,50 +312,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageRes getPageUserByName(Long pageNo, Long pageSize, String name) {
-        Long total = mUserRepository.getTotalRecord(name);
+    public PageRes getPageUser(Long pageNo, Long pageSize, String name, String email, Integer id, UserEnum isActive) {
+        String isActive1= isActive.toString();
+        Long total = mUserRepository.getTotalRecord(name,email,id,isActive1);
         PageRes pageRes = new PageRes();
         pageRes.setPageSize(pageSize);
         pageRes.setPageNo(pageNo);
         pageRes.setTotalRecord(total);
-        pageRes.setTotalPage((long) Math.ceil((double) total /pageSize));
+        pageRes.setTotalPage((long) Math.ceil((double) total / pageSize));
 
-        Long limit=pageSize;
-        Long offset=(pageSize*(pageNo-1));
-
-        List<UserEntity> userResList= mUserRepository.getPaging(name,limit,offset);
+        Long limit = pageSize;
+        Long offset = (pageSize * (pageNo - 1));
+        List<UserEntity> userResList = mUserRepository.getPaging(name, limit, offset,email,id, isActive1);
         List<UserRes> res = new ArrayList<>();
-        for(UserEntity i: userResList){
-            UserRes userRes = new UserRes();
-            userRes.setId(i.getId());
-            userRes.setName(i.getName());
-            userRes.setEmail(i.getEmail());
-
-            res.add(userRes);
-            pageRes.setRecord(res);
-        }
-            return pageRes;
-    }
-
-    public void testJoin() {
-        mUserRepository.testJoin().forEach(o->o.getId());
-    }
-
-    @Override
-    public PageRes getPage(Long pageNo, Long pageSize) {
-        Long total = mUserRepository.getTotalRecord1();
-        PageRes pageRes = new PageRes();
-        pageRes.setPageSize(pageSize);
-        pageRes.setPageNo(pageNo);
-        pageRes.setTotalRecord(total);
-        pageRes.setTotalPage((long) Math.ceil((double) total /pageSize));
-
-        Long limit=pageSize;
-        Long offset=(pageSize*(pageNo-1));
-
-        List<UserEntity> userResList= mUserRepository.getPaging1(limit,offset);
-        List<UserRes> res = new ArrayList<>();
-        for(UserEntity i: userResList){
+        for (UserEntity i : userResList) {
             UserRes userRes = new UserRes();
             userRes.setId(i.getId());
             userRes.setName(i.getName());
@@ -367,5 +335,9 @@ public class UserServiceImpl implements UserService {
             pageRes.setRecord(res);
         }
         return pageRes;
+    }
+
+    public void testJoin() {
+        mUserRepository.testJoin().forEach(o -> o.getId());
     }
 }

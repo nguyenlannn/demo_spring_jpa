@@ -2,10 +2,9 @@ package com.example.lan_demo.controller;
 
 import com.example.lan_demo.base.BaseResponse;
 import com.example.lan_demo.dto.res.PageRes;
+import com.example.lan_demo.enums.UserEnum;
 import com.example.lan_demo.service.UserService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,17 +25,14 @@ public class UserController {
         return BaseResponse.success(mUserService.getListUser(name));
     }
 
-    @GetMapping("/pagingByName")
-    public PageRes PagingUserByName(@RequestParam Long pageNo,
-                                    @RequestParam Long pageSize,
-                                    @RequestParam String name){
-        return mUserService.getPageUserByName(pageNo,pageSize,name);
-    }
-
     @GetMapping("/paging")
-    public PageRes Paging(@RequestParam Long pageNo,
-                                    @RequestParam Long pageSize){
-        return mUserService.getPage(pageNo,pageSize);
+    public PageRes PagingUser(@RequestParam  Long pageNo,
+                              @RequestParam  Long pageSize,
+                              @RequestParam (defaultValue = "",required = false) String name ,
+                              @RequestParam (defaultValue = "",required = false) String email,
+                              @RequestParam (defaultValue = "2",required = false) Integer id,
+                              @RequestParam (defaultValue = "1",required = false) UserEnum isActive){
+        return mUserService.getPageUser(pageNo,pageSize,name,email,id,isActive);
     }
 
     @GetMapping("/basic")
