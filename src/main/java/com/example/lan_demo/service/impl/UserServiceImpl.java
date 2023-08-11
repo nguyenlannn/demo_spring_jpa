@@ -27,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -291,7 +293,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserRes> getListUser(String name) {
-        List<UserEntity> userEntity = mUserRepository.findByName(name);
+        List<UserEntity> userEntity = mUserRepository.findByUser(Sort.by("id"));//sort theo id,name,mail....
         List<UserRes> res = new ArrayList<>();
 //        int size = userEntity.size(); dùng với vòng for truyền thống
         for (UserEntity i : userEntity) {
@@ -313,8 +315,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageRes getPageUser(Long pageNo, Long pageSize, String name, String email, Integer id, UserEnum isActive) {
-        String isActive1= isActive.toString();
-        Long total = mUserRepository.getTotalRecord(name,email,id,isActive1);
+        Long total = mUserRepository.getTotalRecord(name, email, id, isActive);
         PageRes pageRes = new PageRes();
         pageRes.setPageSize(pageSize);
         pageRes.setPageNo(pageNo);
@@ -323,7 +324,7 @@ public class UserServiceImpl implements UserService {
 
         Long limit = pageSize;
         Long offset = (pageSize * (pageNo - 1));
-        List<UserEntity> userResList = mUserRepository.getPaging(name, limit, offset,email,id, isActive1);
+        List<UserEntity> userResList = mUserRepository.getPaging(name, email,id,isActive, limit, offset);
         List<UserRes> res = new ArrayList<>();
         for (UserEntity i : userResList) {
             UserRes userRes = new UserRes();
@@ -339,5 +340,21 @@ public class UserServiceImpl implements UserService {
 
     public void testJoin() {
         mUserRepository.testJoin().forEach(o -> o.getId());
+    }
+
+    @Override
+    public List<UserRes> getAllUser(Long pageNo, Long pageSize) {
+        List<UserEntity> allUser = mUserRepository.findAllUser(PageRequest.of(Math.toIntExact(pageNo),
+                Math.toIntExact(pageSize)));
+        List<UserRes> res = new ArrayList<>();
+        for (UserEntity i : allUser) {
+            UserRes userRes = UserRes.builder()
+                    .id(i.getId())
+                    .email(i.getEmail())
+                    .name(i.getName())
+                    .build();
+            res.add(userRes);
+        }
+        return res;
     }
 }

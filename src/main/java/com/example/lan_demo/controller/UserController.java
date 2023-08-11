@@ -16,27 +16,33 @@ public class UserController {
     private final UserService mUserService;
 
     @GetMapping("/DetailUser")
-    public BaseResponse getDetailUser(){
+    public BaseResponse getDetailUser() {
         return BaseResponse.success(mUserService.getDetailUser());
     }
 
     @GetMapping("/listUser")
-    public BaseResponse getListUser(@RequestParam String name){
+    public BaseResponse getListUser(@RequestParam (required = false) String name) {
         return BaseResponse.success(mUserService.getListUser(name));
     }
 
     @GetMapping("/paging")
-    public PageRes PagingUser(@RequestParam  Long pageNo,
-                              @RequestParam  Long pageSize,
-                              @RequestParam (defaultValue = "",required = false) String name ,
-                              @RequestParam (defaultValue = "",required = false) String email,
-                              @RequestParam (defaultValue = "2",required = false) Integer id,
-                              @RequestParam (defaultValue = "1",required = false) UserEnum isActive){
-        return mUserService.getPageUser(pageNo,pageSize,name,email,id,isActive);
+    public PageRes PagingUser(@RequestParam Long pageNo,
+                              @RequestParam Long pageSize,
+                              @RequestParam(defaultValue = "", required = false) String name,
+                              @RequestParam(defaultValue = "", required = false) String email,
+                              @RequestParam(required = false) Integer id,
+                              @RequestParam(required = false) UserEnum isActive) {
+        return mUserService.getPageUser(pageNo, pageSize, name, email, id, isActive);
     }
 
     @GetMapping("/basic")
-    public void test(){
+    public void test() {
         mUserService.testJoin();
+    }
+
+    @GetMapping("/")
+    public BaseResponse getAllUser(@RequestParam Long pageNo,
+                                   @RequestParam Long pageSize) {
+        return BaseResponse.success(mUserService.getAllUser(pageNo,pageSize));
     }
 }

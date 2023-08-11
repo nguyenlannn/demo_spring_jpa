@@ -27,4 +27,6 @@ public interface UserService {
     PageRes getPageUser(Long pageNo, Long pageSize, String name, String email, Integer id, UserEnum isActive);
 
     void testJoin();
+
+    List<UserRes> getAllUser(Long pageNo, Long pageSize);
 }
