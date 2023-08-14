@@ -1,6 +1,5 @@
 package com.example.lan_demo.controller;
 
-import com.example.lan_demo.base.BaseListProduceDto;
 import com.example.lan_demo.base.BaseResponse;
 import com.example.lan_demo.dto.res.PageRes;
 import com.example.lan_demo.enums.UserEnum;
