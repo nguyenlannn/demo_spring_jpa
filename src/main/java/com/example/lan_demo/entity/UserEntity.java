@@ -1,10 +1,7 @@
 package com.example.lan_demo.entity;
 
 import com.example.lan_demo.enums.UserEnum;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
@@ -16,6 +13,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@ToString
 @Entity(name = "user")
 public class UserEntity {
     @Id

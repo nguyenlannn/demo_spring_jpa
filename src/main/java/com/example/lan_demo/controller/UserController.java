@@ -1,5 +1,6 @@
 package com.example.lan_demo.controller;
 
+import com.example.lan_demo.base.BaseListProduceDto;
 import com.example.lan_demo.base.BaseResponse;
 import com.example.lan_demo.dto.res.PageRes;
 import com.example.lan_demo.enums.UserEnum;
@@ -21,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/listUser")
-    public BaseResponse getListUser(@RequestParam (required = false) String name) {
+    public BaseResponse getListUser(@RequestParam(required = false) String name) {
         return BaseResponse.success(mUserService.getListUser(name));
     }
 
@@ -40,9 +41,10 @@ public class UserController {
         mUserService.testJoin();
     }
 
-    @GetMapping("/")
-    public BaseResponse getAllUser(@RequestParam Long pageNo,
-                                   @RequestParam Long pageSize) {
-        return BaseResponse.success(mUserService.getAllUser(pageNo,pageSize));
+    @GetMapping("/aaa")
+    public BaseResponse getAllUser(@RequestParam Integer page,
+                                   @RequestParam Integer size,
+                                   @RequestParam(required = false, name = "sort") String sorting) {
+        return BaseResponse.success(mUserService.getAllUser(page, size, sorting));
     }
 }

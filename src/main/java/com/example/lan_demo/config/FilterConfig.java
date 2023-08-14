@@ -41,7 +41,7 @@ public class FilterConfig extends OncePerRequestFilter {
             , HttpServletResponse httpServletResponse
             , FilterChain filterChain) throws ServletException, IOException {
 
-        if (httpServletRequest.getServletPath().startsWith("/basic")||httpServletRequest.getServletPath().startsWith("/paging")) {
+        if (httpServletRequest.getServletPath().startsWith("/basic")||httpServletRequest.getServletPath().startsWith("/aaa")) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } else {
             httpServletResponse.setContentType(APPLICATION_JSON_VALUE);

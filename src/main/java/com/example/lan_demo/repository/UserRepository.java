@@ -2,6 +2,7 @@ package com.example.lan_demo.repository;
 
 import com.example.lan_demo.entity.UserEntity;
 import com.example.lan_demo.enums.UserEnum;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +18,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     UserEntity findByEmail(String email);
 
-    @Query(value = "SELECT u FROM user u")//JPQL SORT
+    @Query(value = "SELECT u FROM user u")
+//JPQL SORT
     List<UserEntity> findByUser(Sort sort);
 
 
@@ -56,9 +58,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             "and if((?2!=''),(u.email like concat('%',?2,'%')),1) " +
             "and if((?3 is not null),(u.id= ?3),1) " +
             "and if((?4 is not null),(u.is_active= ?4),1) " +
-            "order by u.email asc, u.name desc "+
-            "limit ?6, ?5", nativeQuery = true)  //không hỗ trợ sort
-    List<UserEntity> getPaging(String name,String email,Integer id,UserEnum isActive1, Long limit, Long offset);
+            "order by u.email asc, u.name desc " +
+            "limit ?6, ?5", nativeQuery = true)
+        //không hỗ trợ sort
+    List<UserEntity> getPaging(String name, String email, Integer id, UserEnum isActive1, Long limit, Long offset);
 
     @Query(value = "select u.id, u.email, d.id, d.userAgent from user u join device d on u.id = d.user.id")
     List<UserEntity> testJoin();
@@ -66,10 +69,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 //    @Query(value = "select u from user u order by u.id asc ")// JPQL
 //    List<UserEntity> findAllUser(Pageable pageable);
 
-    @Query(value = "select * from user u order by u.id ", // native query
+    @Query(value = "select * from user as u inner join device as d on u.id=d.user_id ",
             countQuery = "select count(*) from user",
             nativeQuery = true)
-    List<UserEntity> findAllUser(Pageable pageable);
+    Page<UserEntity> selectAllUser(Pageable pageable);
 }
 
 

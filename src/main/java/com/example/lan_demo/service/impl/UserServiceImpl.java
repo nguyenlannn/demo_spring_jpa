@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.lan_demo.base.AuthContext;
+import com.example.lan_demo.base.BaseListProduceDto;
 import com.example.lan_demo.config.TokenConfig;
 import com.example.lan_demo.dto.Verification;
 import com.example.lan_demo.dto.req.ActiveReq;
@@ -22,12 +23,14 @@ import com.example.lan_demo.exception.UnauthorizedException;
 import com.example.lan_demo.repository.DeviceRepository;
 import com.example.lan_demo.repository.UserRepository;
 import com.example.lan_demo.service.UserService;
+import com.example.lan_demo.until.ConvertUntil;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -45,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.example.lan_demo.enums.UserEnum.NO;
 import static com.example.lan_demo.enums.UserEnum.YES;
@@ -66,6 +70,9 @@ public class UserServiceImpl implements UserService {
     private final DaoAuthenticationProvider daoAuthenticationProvider;
 
     private final DeviceRepository mDeviceRepository;
+
+    private final ConvertUntil convertUntil;
+
     @Value("${JWT_SECRET}")
     private String JWT_SECRET;
 
@@ -324,7 +331,7 @@ public class UserServiceImpl implements UserService {
 
         Long limit = pageSize;
         Long offset = (pageSize * (pageNo - 1));
-        List<UserEntity> userResList = mUserRepository.getPaging(name, email,id,isActive, limit, offset);
+        List<UserEntity> userResList = mUserRepository.getPaging(name, email, id, isActive, limit, offset);
         List<UserRes> res = new ArrayList<>();
         for (UserEntity i : userResList) {
             UserRes userRes = new UserRes();
@@ -343,18 +350,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRes> getAllUser(Long pageNo, Long pageSize) {
-        List<UserEntity> allUser = mUserRepository.findAllUser(PageRequest.of(Math.toIntExact(pageNo),
-                Math.toIntExact(pageSize)));
-        List<UserRes> res = new ArrayList<>();
-        for (UserEntity i : allUser) {
-            UserRes userRes = UserRes.builder()
-                    .id(i.getId())
-                    .email(i.getEmail())
-                    .name(i.getName())
-                    .build();
-            res.add(userRes);
-        }
-        return res;
+    public BaseListProduceDto<UserRes> getAllUser(Integer page, Integer size, String sorting) {
+
+        Pageable pageable = convertUntil.buildPageable(page, size, sorting);
+
+        Page<UserEntity> pageUser = mUserRepository.selectAllUser(pageable);
+        List<UserEntity> userEntities = pageUser.getContent();
+        List<UserRes> userRes=userEntities.stream().map(i -> UserRes.builder().id(i.getId()).name(i.getName())
+                        .email(i.getEmail())
+                        .build()
+        ).collect(Collectors.toList());
+
+        return BaseListProduceDto.<UserRes>builder()
+                .content(userRes)
+                .totalElements(pageUser.getTotalElements())
+                .totalPages(pageUser.getTotalPages())
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .build();
     }
 }
