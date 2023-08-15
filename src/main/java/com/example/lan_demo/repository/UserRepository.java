@@ -1,5 +1,7 @@
 package com.example.lan_demo.repository;
 
+import com.example.lan_demo.dto.Rss.SelectDeviceRss;
+import com.example.lan_demo.entity.DeviceEntity;
 import com.example.lan_demo.entity.UserEntity;
 import com.example.lan_demo.enums.UserEnum;
 import org.springframework.data.domain.Page;
@@ -69,10 +71,15 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 //    @Query(value = "select u from user u order by u.id asc ")// JPQL
 //    List<UserEntity> findAllUser(Pageable pageable);
 
-    @Query(value = "select * from user as u left join device as d on u.id=d.user_id ",
+    @Query(value = "select * from user ",
             countQuery = "select count(*) from user",
             nativeQuery = true)
     Page<UserEntity> selectAllUser(Pageable pageable);
+
+    @Query(value = "select d.id as id, d.is_active as isActive, d.user_agent as userAgent, d.device_verification as deviceVerification, d.user_id as userId " +
+            "from device d",
+            nativeQuery = true)
+    List<SelectDeviceRss> selectDevice();
 }
 
 
