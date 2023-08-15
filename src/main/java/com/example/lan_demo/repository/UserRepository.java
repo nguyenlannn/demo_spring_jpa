@@ -69,7 +69,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 //    @Query(value = "select u from user u order by u.id asc ")// JPQL
 //    List<UserEntity> findAllUser(Pageable pageable);
 
-    @Query(value = "select * from user as u inner join device as d on u.id=d.user_id ",
+    @Query(value = "select * from user as u left join device as d on u.id=d.user_id ",
             countQuery = "select count(*) from user",
             nativeQuery = true)
     Page<UserEntity> selectAllUser(Pageable pageable);

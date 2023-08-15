@@ -11,6 +11,7 @@ import com.example.lan_demo.dto.Verification;
 import com.example.lan_demo.dto.req.ActiveReq;
 import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
+import com.example.lan_demo.dto.res.DeviceRes;
 import com.example.lan_demo.dto.res.PageRes;
 import com.example.lan_demo.dto.res.TokenRes;
 import com.example.lan_demo.dto.res.UserRes;
@@ -44,10 +45,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.lan_demo.enums.UserEnum.NO;
@@ -356,8 +354,16 @@ public class UserServiceImpl implements UserService {
 
         Page<UserEntity> pageUser = mUserRepository.selectAllUser(pageable);
         List<UserEntity> userEntities = pageUser.getContent();
-        List<UserRes> userRes=userEntities.stream().map(i -> UserRes.builder().id(i.getId()).name(i.getName())
+        List<UserRes> userRes=userEntities.stream().map(i -> UserRes.builder()
+                        .id(i.getId())
+                        .name(i.getName())
                         .email(i.getEmail())
+                        .devices(i.getDevices().stream().map(o-> DeviceRes.builder()
+                                .id(o.getId())
+                                .userAgent(o.getUserAgent())
+                                .isActive(o.getIsActive())
+                                .deviceVerification(o.getDeviceVerification())
+                                .build()).collect(Collectors.toList()))
                         .build()
         ).collect(Collectors.toList());
 
