@@ -1,5 +1,6 @@
 package com.example.lan_demo.repository;
 
+import com.example.lan_demo.dto.Rss.SelectAllUserRss;
 import com.example.lan_demo.dto.Rss.SelectDeviceRss;
 import com.example.lan_demo.entity.DeviceEntity;
 import com.example.lan_demo.entity.UserEntity;
@@ -71,15 +72,29 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 //    @Query(value = "select u from user u order by u.id asc ")// JPQL
 //    List<UserEntity> findAllUser(Pageable pageable);
 
-    @Query(value = "select * from user ",
-            countQuery = "select count(*) from user",
-            nativeQuery = true)
-    Page<UserEntity> selectAllUser(Pageable pageable);
+//    @Query(value = "select * from user ",//câu query 1
+//            countQuery = "select count(*) from user",
+//            nativeQuery = true)
+//    Page<UserEntity> selectAllUser(Pageable pageable);
 
+    //câu query 2
     @Query(value = "select d.id as id, d.is_active as isActive, d.user_agent as userAgent, d.device_verification as deviceVerification, d.user_id as userId " +
             "from device d",
             nativeQuery = true)
     List<SelectDeviceRss> selectDevice();
+
+    @Query(value = "select u.id as id, " +
+                        "u.email as email, " +
+                        "u.name as name, " +
+                        "d.id as id, " +
+                        "d.is_active as isActive, " +
+                        "d.user_agent as userAgent, " +
+                        "d.device_verification as deviceVerification, " +
+                        "d.user_id as userId " +
+                        "from user u left join device d on u.id=d.user_id ",
+            countQuery = "select count(*) from user",
+            nativeQuery = true)
+    Page<SelectAllUserRss> selectAllUser(Pageable pageable);
 }
 
 

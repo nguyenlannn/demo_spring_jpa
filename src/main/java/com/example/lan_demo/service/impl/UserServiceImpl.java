@@ -7,6 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.lan_demo.base.AuthContext;
 import com.example.lan_demo.base.BaseListProduceDto;
 import com.example.lan_demo.config.TokenConfig;
+import com.example.lan_demo.dto.Rss.SelectAllUserRss;
 import com.example.lan_demo.dto.Rss.SelectDeviceRss;
 import com.example.lan_demo.dto.Verification;
 import com.example.lan_demo.dto.req.ActiveReq;
@@ -351,24 +352,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public BaseListProduceDto<UserRes> getAllUser(Integer page, Integer size, String sorting) {
 
-        Pageable pageable = convertUntil.buildPageable(page, size, sorting);
+        Pageable pageable = convertUntil.buildPageable(page - 1, size, sorting);
 
-        Page<UserEntity> pageUser = mUserRepository.selectAllUser(pageable);
-        List<UserEntity> userEntities = pageUser.getContent();
-        Set<UserEntity> userEntitySet = new HashSet<>(userEntities);
+        Page<SelectAllUserRss> pageUser = mUserRepository.selectAllUser(pageable);
+        List<SelectAllUserRss> userEntities = pageUser.getContent();
+        Set<SelectAllUserRss> userEntitySet=new LinkedHashSet<>(userEntities);
 
-        List<SelectDeviceRss> selectDevice = mUserRepository.selectDevice();
-
-        List<DeviceRes> deviceResList=new ArrayList<>();
+//        List<SelectDeviceRss> selectDevice = mUserRepository.selectDevice();
         List<UserRes> user = new ArrayList<>();
-        for (UserEntity a:userEntitySet) {
+
+        for (SelectAllUserRss a : userEntitySet) {
             UserRes userRes = new UserRes();
             userRes.setId(a.getId());
             userRes.setName(a.getName());
             userRes.setEmail(a.getEmail());
+            userRes.setDevices(new ArrayList<>());
 
-            for (SelectDeviceRss b : selectDevice) {
-                if (a.getId().equals(b.getUserId())) {
+            List<DeviceRes> deviceResList = new ArrayList<>();
+            for (DeviceEntity b : ) {
+                if (Objects.equals(a.getId(), b.getUser().getId())) {
                     DeviceRes deviceRes = new DeviceRes();
                     deviceRes.setId(b.getId());
                     deviceRes.setUserAgent(b.getUserAgent());
@@ -376,13 +378,52 @@ public class UserServiceImpl implements UserService {
                     deviceRes.setIsActive(b.getIsActive());
 
                     deviceResList.add(deviceRes);
-
-                    userRes.setDevices(deviceResList);
                 }
-                user.add(userRes);
+                userRes.setDevices(deviceResList);
             }
+            user.add(userRes);
         }
-//        List<UserRes> userRes=userEntities.stream().map(i -> UserRes.builder()
+
+//        for (UserEntity a : userEntitySet) {//-2 câu query -cách 1
+//            UserRes userRes = new UserRes();
+//            userRes.setId(a.getId());
+//            userRes.setName(a.getName());
+//            userRes.setEmail(a.getEmail());
+//            userRes.setDevices(new ArrayList<>());
+////            List<DeviceRes> deviceResList=new ArrayList<>();
+//            for (SelectDeviceRss b : selectDevice) {
+//                if (Objects.equals(a.getId(), b.getUserId())) {
+//                    DeviceRes deviceRes = new DeviceRes();
+//                    deviceRes.setId(b.getId());
+//                    deviceRes.setUserAgent(b.getUserAgent());
+//                    deviceRes.setDeviceVerification(b.getDeviceVerification());
+//                    deviceRes.setIsActive(b.getIsActive());
+//                    userRes.getDevices().add(deviceRes);
+////                    deviceResList.add(deviceRes);
+//                }
+////                userRes.setDevices(deviceResList);
+//            }
+//            user.add(userRes);
+//        }
+
+//        userEntitySet.forEach(a -> //2 câu query -cách 2 lamda
+//                user.add(UserRes.builder()
+//                        .id(a.getId())
+//                        .name(a.getName())
+//                        .email(a.getEmail())
+//                        .devices(selectDevice.stream()
+//                                .filter(b -> Objects.equals(a.getId(), b.getUserId()))
+//                                .map(b -> DeviceRes.builder()
+//                                        .id(b.getId())
+//                                        .userAgent(b.getUserAgent())
+//                                        .deviceVerification(b.getDeviceVerification())
+//                                        .isActive(b.getIsActive())
+//                                        .build())
+//                                .collect(Collectors.toList()))
+//                        .build())
+//        );
+
+//        List<UserRes> userRes=userEntities.stream().map(i -> UserRes.builder()// sing ra nhiều câu query -hiệu năng kém hơn
 //                        .id(i.getId())
 //                        .name(i.getName())
 //                        .email(i.getEmail())
