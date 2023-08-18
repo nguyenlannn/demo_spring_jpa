@@ -13,10 +13,7 @@ import com.example.lan_demo.dto.Verification;
 import com.example.lan_demo.dto.req.ActiveReq;
 import com.example.lan_demo.dto.req.LoginReq;
 import com.example.lan_demo.dto.req.UserReq;
-import com.example.lan_demo.dto.res.DeviceRes;
-import com.example.lan_demo.dto.res.PageRes;
-import com.example.lan_demo.dto.res.TokenRes;
-import com.example.lan_demo.dto.res.UserRes;
+import com.example.lan_demo.dto.res.*;
 import com.example.lan_demo.entity.DeviceEntity;
 import com.example.lan_demo.entity.UserEntity;
 import com.example.lan_demo.enums.DeviceEnum;
@@ -360,27 +357,23 @@ public class UserServiceImpl implements UserService {
 
 //        List<SelectDeviceRss> selectDevice = mUserRepository.selectDevice();
         List<UserRes> user = new ArrayList<>();
-
         for (SelectAllUserRss a : userEntitySet) {
-            UserRes userRes = new UserRes();
+            UserRes userRes=new UserRes();
             userRes.setId(a.getId());
             userRes.setName(a.getName());
             userRes.setEmail(a.getEmail());
             userRes.setDevices(new ArrayList<>());
 
-            List<DeviceRes> deviceResList = new ArrayList<>();
-            for (DeviceEntity b : ) {
-                if (Objects.equals(a.getId(), b.getUser().getId())) {
-                    DeviceRes deviceRes = new DeviceRes();
-                    deviceRes.setId(b.getId());
-                    deviceRes.setUserAgent(b.getUserAgent());
-                    deviceRes.setDeviceVerification(b.getDeviceVerification());
-                    deviceRes.setIsActive(b.getIsActive());
-
-                    deviceResList.add(deviceRes);
-                }
-                userRes.setDevices(deviceResList);
+            List<DeviceRes> deviceResList=new ArrayList<>();
+            if(Objects.equals(a.getId(), a.getUserId())){
+                DeviceRes deviceRes=new DeviceRes();
+                deviceRes.setId(a.getDeviceId());
+                deviceRes.setUserAgent(a.getUserAgent());
+                deviceRes.setIsActive(a.getIsActive());
+                deviceRes.setDeviceVerification(a.getDeviceVerification());
+                deviceResList.add(deviceRes);
             }
+            userRes.setDevices(deviceResList);
             user.add(userRes);
         }
 

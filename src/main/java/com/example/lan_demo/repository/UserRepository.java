@@ -86,7 +86,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query(value = "select u.id as id, " +
                         "u.email as email, " +
                         "u.name as name, " +
-                        "d.id as id, " +
+                        "d.id as deviceId, " +
                         "d.is_active as isActive, " +
                         "d.user_agent as userAgent, " +
                         "d.device_verification as deviceVerification, " +

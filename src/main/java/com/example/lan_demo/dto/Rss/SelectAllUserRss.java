@@ -6,6 +6,7 @@ public interface SelectAllUserRss {
     Integer getId();
     String getEmail();
     String getName();
+    Integer getDeviceId();
     DeviceEnum getIsActive();
     String getUserAgent();
     String getDeviceVerification();
