@@ -69,7 +69,7 @@ public class SecurityConfiguration implements AuditorAware<String> {
         return mailSender;
     }
 
-    @Bean //bộ lọc
+    @Bean //bean dùng cho bộ lọc
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors();
         http.csrf().disable();

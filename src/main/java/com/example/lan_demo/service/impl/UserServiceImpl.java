@@ -350,7 +350,6 @@ public class UserServiceImpl implements UserService {
     public BaseListProduceDto<UserRes> getAllUser(Integer page, Integer size, String sorting) {
 
         Pageable pageable = convertUntil.buildPageable(page - 1, size, sorting);
-
         Page<SelectAllUserRss> pageUser = mUserRepository.selectAllUser(pageable);
         List<SelectAllUserRss> userEntities = pageUser.getContent();
         Set<SelectAllUserRss> userEntitySet=new LinkedHashSet<>(userEntities);
